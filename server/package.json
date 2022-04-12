@@ -1,0 +1,13 @@
+{
+    "scripts": {
+        "server": "nodemon index.js ",
+        "createCredentials": "node db/createCredentials.js",
+        "createDBInstance": "node db/db_instance.js"
+    },
+    "dependencies": {
+        "express": "^4.17.3",
+        "mongodb": "^4.5.0",
+        "mongoose": "^6.2.10",
+        "readline-sync": "^1.4.10"
+    }
+}
