@@ -1,49 +1,39 @@
-const mongoose = require('mongoose');
 const db = require('./db_instance')
-const usersData = require('./dataForDB/users.json')
-const rolesData = require('./dataForDB/roles.json')
-const contractsData = require('./dataForDB/contracts.json')
-const workActivitysData = require('./dataForDB/workactivities.json')
 
-function returnValidData(jsonData){
-    const data = jsonData.map(doc => {
-        doc._id = mongoose.Types.ObjectId(doc._id.$oid)
-        return doc
-    })
-    return data
+const User = require("./models/User")
+const Role = require("./models/Role")
+const Contract = require("./models/Contract")
+const WorkActivity = require("./models/workActivity")
+
+const usersData = require("./dataForDB/users_data")
+const rolesData = require("./dataForDB/roles_data")
+const contractsData = require("./dataForDB/contracts_data")
+const workActivitysData = require("./dataForDB/wa_data")
+
+async function isDocsExistIn(collection){
+    const docs = await collection.find({}) 
+    return (docs.length > 0)
 }
-async function addDataIfNotExist(dbName = "myprettydb", collectionName, data){
-    db.connect(async function(err, client) {
-        if(err) throw err
-    
-        const db = client.db(dbName);
-    
-        const isDocsExist = await db.collection(collectionName).countDocuments()
-        if(isDocsExist) console.log('docs exist')
-        else {
-            console.log('docs not exist')
-            try{
-                db.collection(collectionName).insertMany(data, (err, result)=>{
-                    if (err) throw err
-                    console.log('result: ', result);
-                })
-            } catch(err){
-                console.log(err);
-            }
+async function addDocsToCollection(collection, docs){
+    if(!await isDocsExistIn(collection)){
+        for(let doc of docs){
+            const instance = new collection(doc)
+
+            await instance.save(err => {
+                if(err) throw err
+            })
         }
-    });
+    } else{
+        console.log('♡ docs exist')
+    }
 }
 
-async function addDataByCollection(jsonData, collectionName){
-    const currentData = returnValidData(jsonData)
-    await addDataIfNotExist(dbName = "myprettydb", collectionName, currentData)
+// db.connect()
+function add(){
+    addDocsToCollection(User, usersData) 
+    addDocsToCollection(Role, rolesData) 
+    addDocsToCollection(Contract, contractsData) 
+    addDocsToCollection(WorkActivity, workActivitysData)
 }
 
-function startAddingProccess(){
-    addDataByCollection(usersData, 'users')
-    addDataByCollection(rolesData, 'roles')
-    addDataByCollection(contractsData, 'contracts')
-    addDataByCollection(workActivitysData, 'workactivities')
-}
-
-module.exports = {startAddingProccess}
+module.exports = {add}
