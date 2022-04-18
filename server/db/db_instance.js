@@ -1,4 +1,4 @@
-const MongoClient = require('mongodb').MongoClient;
+const mongoose = require('mongoose')
 
 function returnCredentials(){
     let credentials
@@ -11,4 +11,20 @@ function returnCredentials(){
 }
 const credentials = returnCredentials()
 
-module.exports = new MongoClient(credentials.connectionString);
+function connect(){
+    try{
+        mongoose.connect(
+            credentials.connectionString,
+            {
+                useNewUrlParser: true,
+                useUnifiedTopology: true
+            },()=>{
+                console.log('♡ db has been connected')
+            }
+        )
+    } catch(e){
+        console.log(e)
+    }
+}
+
+module.exports = {connect}
