@@ -2,7 +2,7 @@ const {Schema, model} = require('mongoose')
 
 const schema = new Schema({
     car:[{type:String, ref: 'Car'}],
-    roles:{type: String, ref: 'Role'},
+    roles:{type: Array, ref: 'Role'},
     email:{
         type:String,
         required:true,
