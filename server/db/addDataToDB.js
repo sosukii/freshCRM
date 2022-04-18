@@ -1,5 +1,3 @@
-const db = require('./db_instance')
-
 const User = require("./models/User")
 const Role = require("./models/Role")
 const Contract = require("./models/Contract")
@@ -10,30 +8,55 @@ const rolesData = require("./dataForDB/roles_data")
 const contractsData = require("./dataForDB/contracts_data")
 const workActivitysData = require("./dataForDB/wa_data")
 
-async function isDocsExistIn(collection){
-    const docs = await collection.find({}) 
-    return (docs.length > 0)
+async function addDocsByCollection(collection, data){
+    await collection.insertMany(data)
 }
-async function addDocsToCollection(collection, docs){
-    if(!await isDocsExistIn(collection)){
-        for(let doc of docs){
-            const instance = new collection(doc)
-
-            await instance.save(err => {
-                if(err) throw err
-            })
-        }
-    } else{
-        console.log('♡ docs exist')
+function errorHandler(error){
+    error.code === 11000
+    ? console.log('data exist')
+    : console.log('adding denied');
+}
+async function addDocsToUsersCollection(){
+    try{
+        await addDocsByCollection(User, usersData);
+        console.log('♡ Users added');
+    } catch(e){
+        errorHandler(e)
+    }
+}
+async function addDocsToRolesCollection(){
+    try{
+        await addDocsByCollection(Role, rolesData);
+        console.log('♡ Roles added');
+    } catch(e){
+        errorHandler(e)
+    }
+}
+async function addDocsToContractsCollection(){
+    try{
+        await addDocsByCollection(Contract, contractsData);
+        console.log('♡ Contracts added');
+    } catch(e){
+        errorHandler(e)
+    }
+}
+async function addDocsToWorkActivityCollection(){
+    try{
+        await addDocsByCollection(WorkActivity, workActivitysData);
+        console.log('♡ WorkActivity added');
+    } catch(e){
+        errorHandler(e)
     }
 }
 
-// db.connect()
-function add(){
-    addDocsToCollection(User, usersData) 
-    addDocsToCollection(Role, rolesData) 
-    addDocsToCollection(Contract, contractsData) 
-    addDocsToCollection(WorkActivity, workActivitysData)
+
+
+async function add(){
+    await addDocsToUsersCollection()
+    await addDocsToRolesCollection()
+    await addDocsToContractsCollection()
+    await addDocsToWorkActivityCollection()
 }
+//add()
 
 module.exports = {add}
